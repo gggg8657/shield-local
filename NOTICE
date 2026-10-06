@@ -1,0 +1,27 @@
+shield-local
+============
+
+Original work (MIT). 표준 라이브러리만 사용하며 제3자 코드·글꼴을 동봉하지 않습니다.
+data/ 의 수치 데이터는 아래 공개 원본에서 받거나(tools/build_data.py) 원본 표와 대조해 옮긴 것입니다.
+
+- data/xcom.json, data/air_muen.json — NIST XCOM (NIST Standard Reference Database 8) 및
+  J. H. Hubbell & S. M. Seltzer, NISTIR 5632 "Tables of X-Ray Mass Attenuation Coefficients and Mass
+  Energy-Absorption Coefficients". 미국 정부 저작물(NIST). 출처 표기: NIST, https://physics.nist.gov/
+- data/buildup_ans643.json — ANSI/ANS-6.4.3-1991 의 G-P 노출 축적인자 계수와 같은 데이터를 수록한
+  D. K. Trubey, NUREG/CR-5740 (ORNL/RSIC-49/R1, 1991), DOI 10.2172/7032799 — 미국 정부 저작물(public domain).
+  교차 확인에 BoykoNeov/Radiographer 의 전사본(data/vendor/ans643)을 참고했고, 스캔 원본과 다시 대조해
+  콘크리트 8·10 MeV 계수 1건을 바로잡았습니다(값 자체는 물리 상수 성격의 사실 데이터).
+- data/nuclides.json — DDEP(Decay Data Evaluation Project) 권고 붕괴 데이터, LNHB/CEA 가 배포하는 LARA 파일
+  (http://www.lnhb.fr/nuclides/). 출처 표기: "DDEP / LNHB-CEA".
+- shield.py 의 ICRP74_HK 표 — ICRP Publication 74 (1996) Table A.21 의 H*(10)/Ka 환산계수(인용).
+- validation.py 의 문헌값 — Ninković & Adrović (2012, InTech "Gamma Radiation" 1장), Radiological Health
+  Handbook(1970), NCRP Report 49(1976), NUREG/CR-5740 Table 3 에서 인용한 비교용 숫자.
+
+Files authored for this package (MIT): app.py, shield.py, validation.py, ui.html, selftest.py, setup.sh,
+tools/build_data.py, README.md
+
+LLM (not bundled): called via an OpenAI-compatible API; default deployment is Ollama (https://github.com/ollama/ollama, MIT)
+  serving Google Gemma (gemma4:31b, https://ai.google.dev/gemma — see Gemma's terms of use).
+
+This package: Copyright (c) 2026 gggg8657 <dongjukim.dev@gmail.com>
+화면 하단·메타데이터의 저작자 표기는 지우거나 바꾸지 마세요.

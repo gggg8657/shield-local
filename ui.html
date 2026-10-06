@@ -1,0 +1,498 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>방사선 차폐 계산기</title>
+<style>
+  :root{--bg:#f6f7f9;--fg:#1d1f23;--muted:#6b7280;--line:#dde1e6;--card:#fff;--acc:#2563eb;--acc2:#e8efff;--warn:#fff4d6;--warnf:#8a5a00;--bad:#fde2e2;--badf:#b42318;--ok:#dcfce7;--okf:#166534;--grid:#eceff3}
+  *{box-sizing:border-box}
+  body{font:14.5px/1.6 -apple-system,"Pretendard","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;background:var(--bg);color:var(--fg);margin:0}
+  .wrap{max-width:1320px;margin:0 auto;padding:18px 16px}
+  header{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+  h1{font-size:20px;margin:0}h1 small{font-weight:400;color:var(--muted);font-size:13px;margin-left:6px}
+  .priv{font-size:12px;color:#166534;background:#ecfdf3;border:1px solid #c6f0d5;border-radius:99px;padding:2px 10px}
+  .tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);margin:12px 0 14px;flex-wrap:wrap}
+  .tabs button{border:none;border-bottom:2px solid transparent;border-radius:0;background:none;padding:8px 14px;cursor:pointer;color:var(--muted);font:inherit;font-weight:600}
+  .tabs button.on{color:var(--fg);border-bottom-color:var(--acc)}
+  .cols{display:grid;grid-template-columns:minmax(330px,420px) 1fr;gap:16px;align-items:start}
+  @media (max-width:960px){.cols{grid-template-columns:1fr}}
+  .cols>*,.row>*,.row3>*{min-width:0}
+  @media (max-width:520px){.panel .row{grid-template-columns:1fr;gap:0}}
+  .tw{overflow-x:auto;max-width:100%}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:12px}
+  .panel h3{margin:0 0 8px;font-size:14px}
+  label{display:flex;flex-direction:column;gap:3px;font-size:12.5px;color:var(--muted);margin-bottom:9px}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:8px}.row3{display:grid;grid-template-columns:2fr 1fr 1fr;gap:8px}
+  .vu{display:grid;grid-template-columns:1fr 88px;gap:4px}
+  input,select,textarea,button{font:inherit;font-size:14px;padding:6px 9px;border:1px solid var(--line);border-radius:7px;background:#fff;color:var(--fg);min-width:0}
+  textarea{resize:vertical;min-height:70px;width:100%}
+  button{cursor:pointer}button:hover{border-color:#b8c0cc}button:disabled{opacity:.5;cursor:default}
+  button.primary{background:var(--acc);color:#fff;border-color:var(--acc);font-weight:600;padding:8px 18px}
+  button.sm{font-size:12.5px;padding:3px 9px}
+  .seg{display:flex;flex-wrap:wrap;gap:4px}.seg button{font-size:13px;padding:4px 10px;border-radius:99px}
+  .seg button.on{background:var(--acc2);border-color:var(--acc);color:var(--acc);font-weight:600}
+  .hint{font-size:12px;color:var(--muted)}
+  .layer{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr) 58px 76px 28px;gap:4px;margin-bottom:5px;align-items:center}
+  .layer input,.layer select{padding-left:6px;padding-right:6px}
+  @media (max-width:520px){.layer{grid-template-columns:minmax(0,1fr) 58px minmax(0,.8fr) 28px;padding-bottom:5px;border-bottom:1px dashed var(--line)}.layer .m{grid-column:1/4}.layer .x{grid-column:4;grid-row:1}}
+  .layer .n{font-size:11px;color:var(--muted)}
+  .bar{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:10px 0}
+  .disc{background:var(--warn);color:var(--warnf);border:1px solid #f3dfa6;border-radius:8px;padding:9px 12px;font-size:13px;margin-bottom:12px}
+  .disc b{color:#6b4400}
+  .err{overflow-wrap:anywhere;background:var(--bad);color:var(--badf);border-radius:8px;padding:9px 12px;margin-bottom:10px}
+  .empty{color:var(--muted);text-align:center;padding:60px 10px}
+  .heroes{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;margin-bottom:12px}
+  .hero{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+  .hero .k{font-size:12.5px;color:var(--muted)}.hero .v{font-size:26px;font-weight:700;letter-spacing:-.5px;line-height:1.25;font-variant-numeric:tabular-nums}
+  .hero .s{font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+  .hero.main{border-color:var(--acc);box-shadow:0 0 0 1px var(--acc) inset}
+  table{border-collapse:collapse;width:100%;font-size:13px;font-variant-numeric:tabular-nums}
+  th,td{border-bottom:1px solid var(--line);padding:5px 7px;text-align:right;vertical-align:top}
+  th{color:var(--muted);font-weight:600;font-size:12px;background:#fafbfc}
+  td.l,th.l{text-align:left}
+  .meter{height:8px;background:var(--grid);border-radius:4px;overflow:hidden;min-width:80px}
+  .meter i{display:block;height:100%;background:var(--acc);border-radius:4px}
+  .meter i.hi{background:var(--badf)}
+  .charts{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media (max-width:1100px){.charts{grid-template-columns:1fr}}
+  .chart{position:relative}
+  .chart svg{width:100%;height:auto;display:block}
+  .chart .tip{position:absolute;pointer-events:none;background:#1f2937;color:#fff;font-size:12px;padding:4px 8px;border-radius:6px;white-space:nowrap;display:none;font-variant-numeric:tabular-nums}
+  .steps .st{padding:6px 0;border-bottom:1px dashed var(--line);font-size:13px}
+  .steps code{background:#f3f4f6;border-radius:4px;padding:1px 5px;font-size:12.5px;overflow-wrap:anywhere}
+  .warns li{overflow-wrap:anywhere;margin-bottom:4px;font-size:13px;color:#7a4b00}
+  details>summary{cursor:pointer;color:var(--muted);font-size:13px}
+  .hist .it{display:flex;gap:8px;align-items:center;padding:7px 4px;border-bottom:1px solid var(--line);cursor:pointer}
+  .hist .it:hover{background:#f8fafc}.hist .it .t{flex:1;min-width:0;overflow-wrap:anywhere}.hist .it .d{color:var(--muted);font-size:12px}
+  .tag{font-size:11px;border:1px solid var(--line);border-radius:99px;padding:0 7px;color:var(--muted)}
+  pre.stream{white-space:pre-wrap;font:12.5px/1.5 ui-monospace,Menlo,Consolas,monospace;background:#fafbfc;border:1px dashed var(--line);border-radius:8px;padding:10px;margin:0;max-height:220px;overflow:auto;overflow-wrap:anywhere}
+  .exp{font-size:14.5px;line-height:1.75;white-space:pre-wrap;overflow-wrap:anywhere}
+  .ok{color:var(--okf)}.no{color:var(--badf)}
+  .ex button{font-size:12.5px;margin:0 4px 4px 0;text-align:left}
+  @media print{
+    .tabs,.form,#calcbar,header .priv,.noprint,[data-sig]{display:none!important}
+    body{background:#fff}.cols{display:block}.panel,.hero{break-inside:avoid;border-color:#ccc}
+    .chart .tip{display:none!important}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>방사선 차폐 계산기 <small>점선원 감마 · 축적인자 · 역산 · 누적선량</small></h1>
+  <span class="priv">결정론 계산 · 외부 전송 없음</span>
+</header>
+<div class="tabs" id="tabs">
+  <button data-t="calc" class="on">계산</button>
+  <button data-t="ask">자연어 질문</button>
+  <button data-t="other">베타·중성자</button>
+  <button data-t="hist">이력</button>
+  <button data-t="data">데이터·검증</button>
+</div>
+
+<!-- 계산 -->
+<section id="t-calc">
+<div class="cols">
+  <div class="form">
+    <div class="panel">
+      <h3>선원</h3>
+      <div class="row">
+        <label>핵종<select id="nuc"></select></label>
+        <label>방사능<div class="vu"><input id="act" type="number" step="any" value="10"><select id="actu"></select></div></label>
+      </div>
+      <div class="hint" id="nucinfo"></div>
+      <details style="margin-top:6px"><summary>사용자 정의 광자선 (핵종 대신)</summary>
+        <label style="margin-top:6px">한 줄에 "에너지(keV) 방출률(%)" — 비우면 위 핵종 사용<textarea id="custom" placeholder="662 85.1&#10;1173 99.85"></textarea></label>
+      </details>
+      <label style="margin-top:6px">광자 차단에너지 δ
+        <select id="cut"><option value="20">20 keV (기본 — 캡슐에 막히는 저에너지 X선 제외)</option><option value="10">10 keV (모든 X선 포함, 보수적)</option></select></label>
+    </div>
+    <div class="panel">
+      <h3>거리·차폐 <span class="hint">(선원 → 검출점 순서)</span></h3>
+      <label>선원–검출점 거리<div class="vu"><input id="dist" type="number" step="any" value="30"><select id="distu"></select></div></label>
+      <div id="layers"></div>
+      <button class="sm" id="addl">+ 차폐층 추가</button>
+      <label style="margin-top:10px">다층 축적인자 근사<select id="rule"></select></label>
+    </div>
+    <div class="panel">
+      <h3>목표·작업시간 <span class="hint">(선택)</span></h3>
+      <div class="seg" id="quant" style="margin-bottom:9px"></div>
+      <div class="row">
+        <label>목표 선량률<div class="vu"><input id="tgt" type="number" step="any" placeholder="예: 2.5"><select id="tgtu"></select></div></label>
+        <label>두께를 구할 재질<select id="smat"></select></label>
+      </div>
+      <div class="row">
+        <label>작업시간<div class="vu"><input id="time" type="number" step="any" placeholder="예: 2"><select id="timeu"></select></div></label>
+        <label style="flex-direction:row;align-items:center;gap:6px;margin-top:18px"><input type="checkbox" id="decay" checked> 붕괴 보정</label>
+      </div>
+    </div>
+    <div class="bar" id="calcbar"><button class="primary" id="go">계산</button><span class="hint" id="status"></span></div>
+  </div>
+  <div id="out"><div class="disc" id="disc0"></div><div class="empty">왼쪽에 선원·거리·차폐를 넣고 <b>계산</b>을 누르세요.<br>예: Cs-137 10 mCi, 30 cm, 납 10 mm</div></div>
+</div>
+</section>
+
+<!-- 자연어 질문 -->
+<section id="t-ask" hidden>
+<div class="cols">
+  <div class="form">
+    <div class="panel">
+      <h3>질문</h3>
+      <textarea id="q" rows="4" placeholder="예: Cs-137 10 mCi 를 30 cm 거리에서 2.5 μSv/h 이하로 막으려면 납 몇 mm?"></textarea>
+      <div class="ex" id="ex" style="margin-top:6px"></div>
+      <div class="bar"><button class="primary" id="askgo">질문 → 계산</button><span class="hint" id="askstatus"></span></div>
+      <div class="hint">LLM 은 질문을 입력값(JSON)으로 바꾸고 결과를 설명하는 데만 씁니다. 숫자 계산은 모두 프로그램이 합니다.
+        LLM 이 질문에 없는 숫자를 넣으면 경고가 뜹니다.</div>
+    </div>
+    <div class="panel"><h3>LLM 출력</h3><pre class="stream" id="askraw"></pre></div>
+  </div>
+  <div id="askout"><div class="empty">로컬 LLM: <span id="llmst">확인 중…</span></div></div>
+</div>
+</section>
+
+<!-- 베타·중성자 -->
+<section id="t-other" hidden>
+<div class="cols">
+  <div class="form">
+    <div class="panel">
+      <h3>베타 (간이 경고)</h3>
+      <label>핵종<select id="bnuc"></select></label>
+      <button id="bgo">최대비정·제동복사 보기</button>
+    </div>
+    <div class="panel">
+      <h3>중성자 (비차폐 선량률만)</h3>
+      <div class="row"><label>선원<select id="nsrc"></select></label>
+        <label>양<div class="vu"><input id="namt" type="number" step="any" value="1"><select id="namtu"><option>ug</option><option>mg</option><option>n/s</option><option>Ci</option><option>mCi</option><option>GBq</option></select></div></label></div>
+      <div class="row"><label>거리<div class="vu"><input id="ndist" type="number" step="any" value="1"><select id="ndistu"></select></div></label>
+        <label>작업시간(h)<input id="ntime" type="number" step="any" placeholder="선택"></label></div>
+      <button id="ngo">계산</button>
+      <div class="hint" id="nnote" style="margin-top:6px"></div>
+    </div>
+  </div>
+  <div id="otherout"><div class="empty">베타는 차폐재 선택(저Z 먼저)·비정 확인용, 중성자는 비차폐 H*(10) 만 계산합니다.<br>중성자 차폐 두께 계산은 <b>미지원</b> — 정밀 해석이 필요합니다.</div></div>
+</div>
+</section>
+
+<!-- 이력 -->
+<section id="t-hist" hidden><div class="panel"><div class="bar"><b>계산 이력</b><span class="hint">서버의 도구 데이터 폴더(WORKSPACE)에 저장</span><button class="sm" id="hrefresh">새로고침</button></div><div class="hist" id="hist"></div></div></section>
+
+<!-- 데이터·검증 -->
+<section id="t-data" hidden>
+<div class="panel"><h3>데이터 출처</h3><ul id="srcs"></ul>
+  <div class="hint">계산 방법: 점등방선원 커널 Ḋ = Σ A·yᵢ/(4πr²)·Eᵢ·(μen/ρ)공기·B(Eᵢ,X)·e^(−X), X = Σ μ(Eᵢ)·t (μ 는 간섭성 산란 제외, ANS-6.4.3 규약), Ḣ*(10) = Ka × (H*(10)/Ka)(Eᵢ).
+  보간: μ/ρ·μen/ρ·H*/Ka 는 log-log, 축적인자는 표 에너지에서 B 를 구해 ln B–ln E 선형.</div></div>
+<div class="panel"><h3>핵종 데이터 보기</h3><label style="max-width:260px">핵종<select id="dnuc"></select></label><div id="dnucout"></div></div>
+<div class="panel"><h3>문헌 기준값 대조 <span class="hint">(서버에서 매번 다시 계산)</span></h3><div id="valid" class="hint">불러오는 중…</div></div>
+</section>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const LS = {get(k, d){ try { const v = localStorage.getItem('shield.' + k); return v === null ? d : JSON.parse(v); } catch { return d; } },
+            set(k, v){ try { localStorage.setItem('shield.' + k, JSON.stringify(v)); } catch {} }};
+let M = null, LAST = null, QUANT = LS.get('quant', 'hstar');
+
+// ── 숫자 표시 ──
+function fmtRate(v, q){ const base = q === 'kerma' ? 'Gy' : 'Sv';
+  for (const [f, p] of [[1,''],[1e-3,'m'],[1e-6,'μ'],[1e-9,'n']]) if (Math.abs(v) >= f || f === 1e-9) return `${sig(v / f)} ${p}${base}/h`; }
+const fmtDose = (v, q) => fmtRate(v, q).replace('/h', '');
+function sig(v, n = 4){ if (!isFinite(v)) return '—'; if (v === 0) return '0'; const a = Math.abs(v);
+  if (a >= 1e5 || a < 1e-3) return v.toExponential(2).replace('e', '×10^').replace(/\^\+?(-?\d+)/, (m, e) => sup(e));
+  return String(+v.toPrecision(n)); }
+const sup = e => String(e).split('').map(c => '⁰¹²³⁴⁵⁶⁷⁸⁹'['0123456789'.indexOf(c)] || (c === '-' ? '⁻' : c)).join('');
+const fmtLen = cm => cm == null ? '도달 불가' : cm < 1 ? `${sig(cm * 10, 3)} mm` : `${sig(cm, 4)} cm`;
+const fmtTime = s => { for (const [f, u] of [[365.25*86400,'년'],[86400,'일'],[3600,'시간'],[60,'분']]) if (s >= f) return `${sig(s / f, 4)} ${u}`; return `${sig(s, 3)} 초`; };
+
+// ── 탭 ──
+document.querySelectorAll('#tabs button').forEach(b => b.onclick = () => showTab(b.dataset.t));
+function showTab(t){ document.querySelectorAll('#tabs button').forEach(x => x.classList.toggle('on', x.dataset.t === t));
+  document.querySelectorAll('section').forEach(s => s.hidden = s.id !== 't-' + t);
+  if (t === 'hist') loadHist(); if (t === 'data') loadData(); LS.set('tab', t); }
+
+// ── 메타 → 폼 ──
+const opt = (v, t, sel) => `<option value="${esc(v)}"${sel ? ' selected' : ''}>${esc(t ?? v)}</option>`;
+async function init(){
+  M = await (await fetch('api/meta')).json();
+  $('disc0').innerHTML = '<b>주의</b> — ' + esc(M.disclaimer);
+  const nucs = Object.keys(M.nuclides);
+  $('nuc').innerHTML = nucs.map(n => opt(n, n, n === 'Cs-137')).join('');
+  $('dnuc').innerHTML = $('nuc').innerHTML;
+  $('actu').innerHTML = M.act_units.map(u => opt(u, u.replace('u', 'μ'), u === 'mCi')).join('');
+  $('distu').innerHTML = M.len_units.map(u => opt(u, u, u === 'cm')).join('');
+  $('ndistu').innerHTML = M.len_units.map(u => opt(u, u, u === 'm')).join('');
+  $('timeu').innerHTML = M.time_units.map(u => opt(u, {s:'초',min:'분',h:'시간',d:'일',wk:'주',y:'년'}[u], u === 'h')).join('');
+  $('rule').innerHTML = Object.entries(M.rules).map(([k, v]) => opt(k, v)).join('');
+  $('smat').innerHTML = Object.entries(M.materials).map(([k, v]) => opt(k, v.name, k === 'lead')).join('');
+  $('bnuc').innerHTML = M.beta.map(n => opt(n)).join('');
+  $('nsrc').innerHTML = Object.keys(M.neutron).map(n => opt(n)).join('');
+  $('nsrc').onchange = () => $('nnote').textContent = M.neutron[$('nsrc').value]; $('nsrc').onchange();
+  $('quant').innerHTML = Object.entries(M.quant).map(([k, [n]]) => `<button data-q="${k}">${esc(n)}</button>`).join('');
+  $('quant').querySelectorAll('button').forEach(b => b.onclick = () => setQuant(b.dataset.q));
+  setQuant(QUANT);
+  $('srcs').innerHTML = M.sources.map(s => `<li>${esc(s)}</li>`).join('');
+  $('llmst').innerHTML = M.llm ? `<span class="ok">연결됨</span> (${esc(M.model)}) — 왼쪽에 질문을 적으세요.` : '<span class="no">연결 안 됨</span> — 계산 탭은 그대로 쓸 수 있습니다.';
+  $('nuc').onchange = nucInfo; nucInfo();
+  addLayer({material: 'lead', thickness: 10, unit: 'mm'});
+  const ex = ['Cs-137 10 mCi 30 cm 거리에서 2.5 μSv/h 이하로 하려면 납 몇 mm?', 'Co-60 1 Ci 를 1 m 에서 볼 때 콘크리트 50 cm 뒤 선량률은?',
+    'Ir-192 370 GBq 선원, 5 m 거리, 철판 2 cm 뒤에서 30분 작업하면 누적선량은?'];
+  $('ex').innerHTML = ex.map(e => `<button class="sm">${esc(e)}</button>`).join('');
+  $('ex').querySelectorAll('button').forEach(b => b.onclick = () => { $('q').value = b.textContent; });
+  showTab(LS.get('tab', 'calc'));
+  const m = location.hash.match(/^#h=([\w-]+)$/);  // 이력 링크: http://서버:8784/#h=<이력 id>
+  if (m) openHist(m[1]);
+}
+async function openHist(id){
+  const r = await (await fetch('api/history/' + id)).json();
+  if (r.kind === 'calc' || r.kind === 'ask'){ fill(r.request); r.result.id = r.id; LAST = r.result; showTab('calc'); render(r.result, $('out')); }
+}
+function setQuant(q){ QUANT = q; LS.set('quant', q); $('quant').querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.q === q));
+  const units = M.rate_units.filter(u => q === 'kerma' ? u.endsWith('Gy/h') : u.endsWith('Sv/h'));
+  const cur = $('tgtu').value; $('tgtu').innerHTML = units.map(u => opt(u, u.replace('u', 'μ'), u === (cur && units.includes(cur) ? cur : units[2]))).join(''); }
+async function nucInfo(){
+  const n = $('nuc').value, m = M.nuclides[n];
+  $('nucinfo').textContent = `반감기 ${fmtTime(m.half_life_s)} · 광자선 ${m.lines}개${m.note ? ' · ' + m.note : ''}`;
+}
+function addLayer(l = {}){
+  const d = document.createElement('div'); d.className = 'layer';
+  d.innerHTML = `<select class="m">${Object.entries(M.materials).map(([k, v]) => opt(k, v.name, k === (l.material || 'lead'))).join('')}</select>
+    <input class="t" type="number" step="any" min="0" value="${l.thickness ?? ''}" placeholder="두께">
+    <select class="u">${M.len_units.map(u => opt(u, u, u === (l.unit || 'mm'))).join('')}</select>
+    <input class="r" type="number" step="any" title="밀도 g/cm³" placeholder="ρ">
+    <button class="sm x" title="삭제">×</button>`;
+  const setRho = () => d.querySelector('.r').placeholder = 'ρ ' + M.materials[d.querySelector('.m').value].rho;
+  d.querySelector('.m').onchange = setRho; setRho();
+  if (l.density) d.querySelector('.r').value = l.density;
+  d.querySelector('.x').onclick = () => d.remove();
+  $('layers').appendChild(d);
+}
+$('addl').onclick = () => addLayer();
+
+function gather(){
+  const custom = $('custom').value.trim().split('\n').map(s => s.trim().split(/[\s,;]+/).map(Number)).filter(a => a.length >= 2 && a.every(isFinite))
+    .map(([e, y]) => [e / 1000, y / 100]);
+  const v = (id, u) => $(id).value === '' ? null : {value: +$(id).value, unit: $(u).value};
+  return {source: {nuclide: $('nuc').value, custom: custom.length ? custom : null, activity: v('act', 'actu'), cutoff_kev: +$('cut').value},
+    distance: v('dist', 'distu'),
+    layers: [...document.querySelectorAll('#layers .layer')].filter(d => d.querySelector('.t').value !== '')
+      .map(d => ({material: d.querySelector('.m').value, thickness: +d.querySelector('.t').value, unit: d.querySelector('.u').value, density: d.querySelector('.r').value ? +d.querySelector('.r').value : null})),
+    rule: $('rule').value, quantity: QUANT, target: v('tgt', 'tgtu'), solve_material: $('smat').value, time: v('time', 'timeu'), decay: $('decay').checked};
+}
+function fill(req){
+  const s = req.source || {};
+  if (s.nuclide && M.nuclides[s.nuclide]) $('nuc').value = s.nuclide;
+  $('custom').value = (s.custom || []).map(([e, y]) => `${+(e * 1000).toPrecision(6)} ${+(y * 100).toPrecision(6)}`).join('\n');
+  if (s.activity){ $('act').value = s.activity.value; $('actu').value = s.activity.unit; }
+  if (s.cutoff_kev) $('cut').value = String(s.cutoff_kev);
+  if (req.distance){ $('dist').value = req.distance.value; $('distu').value = req.distance.unit; }
+  $('layers').innerHTML = ''; (req.layers || []).forEach(addLayer);
+  if (req.rule) $('rule').value = req.rule;
+  setQuant(req.quantity || 'hstar');
+  $('tgt').value = req.target ? req.target.value : ''; if (req.target) $('tgtu').value = req.target.unit;
+  if (req.solve_material) $('smat').value = req.solve_material;
+  $('time').value = req.time ? req.time.value : ''; if (req.time) $('timeu').value = req.time.unit;
+  $('decay').checked = req.decay !== false; nucInfo();
+}
+
+$('go').onclick = async () => {
+  $('go').disabled = true; $('status').textContent = '계산 중…';
+  try {
+    const r = await fetch('api/calc', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(gather())});
+    const j = await r.json(); if (j.error) throw new Error(j.error);
+    LAST = j; render(j, $('out')); $('status').textContent = '';
+  } catch (e) { $('out').innerHTML = `<div class="disc" id="disc0"><b>주의</b> — ${esc(M.disclaimer)}</div><div class="err">${esc(e.message)}</div>`; $('status').textContent = ''; }
+  $('go').disabled = false;
+};
+
+// ── 결과 ──
+function render(res, el){
+  const q = res.quantity, other = q === 'hstar' ? 'kerma' : 'hstar', T = res.target, H = res.hvl, TM = res.time;
+  const lay = res.layers.map(l => `${esc(l.name)} ${fmtLen(l.t_cm)}`).join(' → ') || '차폐 없음';
+  let h = `<div class="disc"><b>주의</b> — ${esc(res.disclaimer)}</div>
+  <div class="hint" style="margin-bottom:8px">${esc(res.nuclide)} ${esc(res.activity_in.value)} ${esc(String(res.activity_in.unit).replace('u','μ'))} (${sig(res.activity_bq)} Bq) · 거리 ${fmtLen(res.r_cm)} · ${lay} · ${esc(res.quantity_name)}</div>
+  <div class="heroes">
+    <div class="hero main"><div class="k">차폐 후 ${esc(res.quantity_name)}</div><div class="v">${fmtRate(res.shielded[q], q)}</div><div class="s">${q === 'hstar' ? '공기커마율' : 'H*(10)'} ${fmtRate(res.shielded[other], other)}</div></div>
+    <div class="hero"><div class="k">비차폐</div><div class="v">${fmtRate(res.unshielded[q], q)}</div><div class="s">${res.layers.length ? '투과율 ' + sig(res.transmission, 3) : ''}</div></div>`;
+  if (T) h += `<div class="hero"><div class="k">목표 ${fmtRate(T.value, q)} 위해 ${esc(T.material_name)} 추가</div><div class="v">${T.already ? '불필요' : fmtLen(T.t_cm)}</div>
+      <div class="s">${T.r_cm_for_target ? '또는 거리만 ' + fmtLen(T.r_cm_for_target) + ' 로' : '이미 목표 이하'}</div></div>`;
+  if (TM) h += `<div class="hero"><div class="k">작업 ${esc(TM.in.value)} ${esc({s:'초',min:'분',h:'시간',d:'일',wk:'주',y:'년'}[TM.in.unit] || TM.in.unit)} 누적 H*(10)</div><div class="v">${fmtDose(TM.dose.hstar, 'hstar')}</div><div class="s">${TM.decay ? '붕괴 보정' : '붕괴 무시'}</div></div>`;
+  h += `</div>`;
+  if (res.warnings.length) h += `<div class="panel"><h3>근사·경고</h3><ul class="warns">${res.warnings.map(w => `<li>${esc(w)}</li>`).join('')}</ul></div>`;
+  h += `<div class="charts"><div class="panel"><h3>선량률 vs ${esc(res.curve_t.material_name)} 추가 두께</h3><div class="chart" id="ch1"></div><div class="hint">기존 차폐 뒤에 덧대는 두께 · y 로그 눈금${T ? ' · 점선 = 목표' : ''}</div></div>
+    <div class="panel"><h3>선량률 vs 거리</h3><div class="chart" id="ch2"></div><div class="hint">현재 차폐 그대로 · 역제곱 · 양축 로그 눈금</div></div></div>`;
+  if (H) h += `<div class="panel"><h3>${esc(H.material_name)} 반가층·1/10가층 <span class="hint">(ρ ${H.rho} g/cm³, 이 선원 스펙트럼 기준)</span></h3>
+    <div class="tw"><table><tr><th class="l"></th><th>HVL (첫 층)</th><th>TVL (첫 층)</th><th>평형 TVL</th></tr>
+    <tr><td class="l">넓은 빔 (축적인자 포함)</td><td>${fmtLen(H.hvl_broad)}</td><td>${fmtLen(H.tvl_broad)}</td><td>${fmtLen(H.tvl_eq)}</td></tr>
+    <tr><td class="l">좁은 빔 (B=1)</td><td>${fmtLen(H.hvl_narrow)}</td><td>${fmtLen(H.tvl_narrow)}</td><td></td></tr></table></div>
+    <div class="hint">첫 층 값은 축적인자가 커지는 구간이라 평형값보다 큽니다. 평형 TVL = 1/100→1/1000 구간 두께 (NCRP 49 표와 비교 가능).</div></div>`;
+  if (TM) h += `<div class="panel"><h3>선량한도 대비 <span class="hint">(누적 H*(10) ${fmtDose(TM.dose.hstar, 'hstar')} 를 연간 유효선량 한도와 비교 — 원자력안전법 시행령 별표 1)</span></h3>
+    <div class="tw"><table>${TM.limits.map(l => `<tr><td class="l">${esc(l.name)}</td><td class="l" style="width:40%"><div class="meter"><i class="${l.frac > .5 ? 'hi' : ''}" style="width:${Math.min(100, l.frac * 100)}%"></i></div></td><td>${sig(l.frac * 100, 3)}%</td><td class="l hint">${esc(l.note)}</td></tr>`).join('')}</table></div>
+    ${TM.decay_note ? `<div class="hint">${esc(TM.decay_note)}</div>` : ''}</div>`;
+  h += `<div class="panel"><h3>광자선별 기여 <span class="hint">(${res.n_lines}개 중 상위, 차단 ${res.cutoff_kev} keV)</span></h3>
+    <div class="tw"><table><tr><th>E (keV)</th><th>방출률</th><th class="l">출처</th><th>비차폐</th><th>mfp</th><th>B</th><th>차폐 후</th><th>비율</th></tr>
+    ${res.lines.slice(0, 12).map(x => `<tr><td>${sig(x.E_keV, 5)}</td><td>${sig(x.y * 100, 4)}%</td><td class="l">${esc(x.origin)}${x.kind === 'X' ? ' X선' : ''}</td><td>${fmtRate(q === 'hstar' ? x.h0 : x.k0, q)}</td><td>${sig(x.mfp, 3)}</td><td>${sig(x.B, 3)}</td><td>${x.share < 1e-6 ? '≈ 0' : fmtRate(q === 'hstar' ? x.h : x.k, q)}</td><td>${x.share < 1e-6 ? '≈ 0' : sig(x.share * 100, 3) + '%'}</td></tr>`).join('')}</table></div>
+    <div class="hint">공기커마율 상수 Γ(δ=${res.cutoff_kev} keV) = ${sig(res.gamma_const)} μGy·m²/(GBq·h)</div></div>`;
+  h += `<div class="panel steps"><h3>단계별 계산 근거</h3>${res.steps.map(s => `<div class="st">${s.t ? `<b>${esc(s.t)}</b><br>` : ''}<code>${esc(s.f)}</code><br>${esc(s.v)}</div>`).join('')}</div>`;
+  h += `<div class="bar noprint"><a href="api/report/${esc(res.id)}.md" download><button>보고서 MD 다운로드</button></a><button onclick="window.print()">PDF 저장 (인쇄)</button><span class="hint">이력에 자동 저장됨</span></div>`;
+  el.innerHTML = h;
+  const yfmt = v => fmtRate(v, q);
+  chart(el.querySelector('#ch1'), res.curve_t.points, {xlog: false, ylog: true, xfmt: fmtLen, yfmt, xlab: `${res.curve_t.material_name} 두께`, target: T ? T.value : null,
+    mark: T && T.t_cm != null && !T.already ? [T.t_cm, T.value] : null});
+  chart(el.querySelector('#ch2'), res.curve_r.points, {xlog: true, ylog: true, xfmt: fmtLen, yfmt, xlab: '거리', target: T ? T.value : null, mark: [res.r_cm, res.shielded[q]]});
+}
+
+// ── SVG 선 그래프 (단일 계열, 로그 눈금, 십자선+툴팁) ──
+function chart(el, pts, o){
+  pts = pts.filter(p => isFinite(p[1]) && (!o.ylog || p[1] > 0) && (!o.xlog || p[0] > 0));
+  if (pts.length < 2){ el.innerHTML = '<div class="hint">그래프 범위 없음</div>'; return; }
+  const W = 520, Hh = 280, R = 14, Tp = 12, B = 40;
+  const tx = o.xlog ? Math.log10 : v => v, ty = o.ylog ? Math.log10 : v => v;
+  let xs = pts.map(p => tx(p[0])), ys = pts.map(p => ty(p[1]));
+  if (o.target && o.target > 0) ys.push(ty(o.target));
+  const x0 = Math.min(...xs), x1 = Math.max(...xs); let y0 = Math.min(...ys), y1 = Math.max(...ys);
+  if (o.ylog){ y0 = Math.floor(y0); y1 = Math.ceil(y1); if (y1 - y0 > 10) y0 = y1 - 10; if (y1 === y0) y1 = y0 + 1; }
+  const yt = o.ylog ? range(y0, y1).map(e => 10 ** e) : nice(y0, y1);
+  const tw = t => String(t).length * 6.2;  // 11px 눈금 글자 폭 추정 — 긴 라벨(1.00×10⁻⁵ nSv/h)이 왼쪽으로 잘리지 않게 여백을 늘림
+  const L = Math.min(150, Math.max(74, 12 + Math.max(...yt.map(v => tw(o.yfmt(v))))));
+  const X = v => L + (tx(v) - x0) / (x1 - x0 || 1) * (W - L - R), Y = v => Tp + (1 - (Math.max(ty(v), y0) - y0) / (y1 - y0 || 1)) * (Hh - Tp - B);
+  let g = '';
+  yt.forEach(v => { g += `<line x1="${L}" x2="${W - R}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--grid)"/><text x="${L - 6}" y="${Y(v) + 4}" text-anchor="end" font-size="11" fill="#6b7280">${esc(o.yfmt(v))}</text>`; });
+  const xt = o.xlog ? range(Math.ceil(x0), Math.floor(x1)).flatMap(e => [1, 2, 5].map(k => k * 10 ** e)).filter(v => tx(v) >= x0 - 1e-9 && tx(v) <= x1 + 1e-9) : nice(x0, x1);
+  xt.forEach(v => { g += `<line x1="${X(v)}" x2="${X(v)}" y1="${Tp}" y2="${Hh - B}" stroke="var(--grid)"/><text x="${Math.min(X(v), W - 2 - tw(o.xfmt(v)) / 2)}" y="${Hh - B + 16}" text-anchor="middle" font-size="11" fill="#6b7280">${esc(o.xfmt(v))}</text>`; });
+  g += `<text x="${(L + W - R) / 2}" y="${Hh - 6}" text-anchor="middle" font-size="12" fill="#6b7280">${esc(o.xlab)}</text>`;
+  if (o.target) g += `<line x1="${L}" x2="${W - R}" y1="${Y(o.target)}" y2="${Y(o.target)}" stroke="#b42318" stroke-dasharray="5 4" stroke-width="1.5"/><text x="${W - R - 4}" y="${Y(o.target) - 5}" text-anchor="end" font-size="11" fill="#b42318">목표 ${esc(o.yfmt(o.target))}</text>`;
+  g += `<path d="${pts.map((p, i) => (i ? 'L' : 'M') + X(p[0]).toFixed(1) + ' ' + Y(p[1]).toFixed(1)).join('')}" fill="none" stroke="var(--acc)" stroke-width="2" stroke-linejoin="round"/>`;
+  if (o.mark) g += `<circle cx="${X(o.mark[0])}" cy="${Y(o.mark[1])}" r="5" fill="var(--acc)" stroke="#fff" stroke-width="2"/>`;
+  g += `<line class="cx" y1="${Tp}" y2="${Hh - B}" stroke="#9ca3af" stroke-width="1" visibility="hidden"/><circle class="cd" r="4.5" fill="var(--acc)" stroke="#fff" stroke-width="2" visibility="hidden"/>
+    <rect x="${L}" y="${Tp}" width="${W - L - R}" height="${Hh - Tp - B}" fill="transparent" class="hit"/>`;
+  el.innerHTML = `<svg viewBox="0 0 ${W} ${Hh}" role="img" aria-label="${esc(o.xlab)}에 따른 선량률">${g}</svg><div class="tip"></div>`;
+  const svg = el.querySelector('svg'), tip = el.querySelector('.tip'), cx = svg.querySelector('.cx'), cd = svg.querySelector('.cd');
+  svg.querySelector('.hit').addEventListener('mousemove', ev => {
+    const bb = svg.getBoundingClientRect(), mx = (ev.clientX - bb.left) * W / bb.width;
+    let best = pts[0]; for (const p of pts) if (Math.abs(X(p[0]) - mx) < Math.abs(X(best[0]) - mx)) best = p;
+    const px = X(best[0]), py = Y(best[1]);
+    cx.setAttribute('x1', px); cx.setAttribute('x2', px); cx.setAttribute('visibility', 'visible');
+    cd.setAttribute('cx', px); cd.setAttribute('cy', py); cd.setAttribute('visibility', 'visible');
+    tip.style.display = 'block'; tip.textContent = `${o.xfmt(best[0])} → ${o.yfmt(best[1])}`;
+    const sx = px * bb.width / W, sy = py * bb.height / Hh;
+    tip.style.left = Math.min(sx + 10, bb.width - tip.offsetWidth - 4) + 'px'; tip.style.top = Math.max(0, sy - 30) + 'px';
+  });
+  svg.querySelector('.hit').addEventListener('mouseleave', () => { tip.style.display = 'none'; cx.setAttribute('visibility', 'hidden'); cd.setAttribute('visibility', 'hidden'); });
+}
+const range = (a, b) => { const r = []; for (let i = a; i <= b; i++) r.push(i); return r; };
+function nice(a, b){ const s = 10 ** Math.floor(Math.log10((b - a) / 5 || 1)), st = [1, 2, 5, 10].map(k => k * s).find(k => (b - a) / k <= 6);
+  const r = []; for (let v = Math.ceil(a / st) * st; v <= b + 1e-9; v += st) r.push(+v.toPrecision(10)); return r; }
+
+// ── 자연어 질문 ──
+$('askgo').onclick = async () => {
+  const q = $('q').value.trim(); if (!q) return;
+  $('askgo').disabled = true; $('askraw').textContent = ''; $('askstatus').textContent = '질문 해석 중…';
+  $('askout').innerHTML = '<div class="empty">LLM 이 질문을 입력값으로 바꾸는 중…</div>';
+  let explain = '';
+  try {
+    const r = await fetch('api/ask', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({question: q})});
+    const rd = r.body.getReader(), dec = new TextDecoder(); let buf = '';
+    for (;;){ const {done, value} = await rd.read(); if (done) break; buf += dec.decode(value, {stream: true});
+      let i; while ((i = buf.indexOf('\n\n')) >= 0){ const line = buf.slice(0, i); buf = buf.slice(i + 2); if (!line.startsWith('data:')) continue;
+        const ev = JSON.parse(line.slice(5));
+        if (ev.token && ev.ch === 'parse') $('askraw').textContent += ev.token;
+        if (ev.token && ev.ch === 'explain'){ explain += ev.token; const e = document.getElementById('expl'); if (e) e.textContent = explain; }
+        if (ev.stage) $('askstatus').textContent = {parse: '질문 해석 중…', calc: '계산 중…', explain: '설명 작성 중…'}[ev.stage];
+        if (ev.parsed) showParsed(ev.parsed, null);
+        if (ev.result){ LAST = ev.result; LAST.id = ev.id; showParsed(null, ev.result); }
+        if (ev.error) throw new Error(ev.error);
+        if (ev.done) finishAsk(ev.done);
+      } }
+  } catch (e) { $('askout').insertAdjacentHTML('afterbegin', `<div class="err">${esc(e.message)}</div>`); }
+  $('askstatus').textContent = ''; $('askgo').disabled = false;
+};
+let PARSED = null;
+function showParsed(p, res){
+  if (p){ PARSED = p; const r = p.request, s = r.source || {};
+    const row = (k, v) => `<tr><td class="l">${k}</td><td class="l">${v ?? '<span class="no">없음</span>'}</td></tr>`;
+    const vu = o => o ? `${esc(o.value)} ${esc(String(o.unit).replace('u', 'μ'))}` : null;
+    $('askout').innerHTML = `<div class="disc"><b>주의</b> — ${esc(M.disclaimer)}</div>
+      <div class="panel"><h3>LLM 이 읽은 입력값 <span class="hint">(코드가 단위·키를 다시 검사함)</span></h3><div class="tw"><table>
+      ${row('핵종', s.nuclide && esc(s.nuclide))}${row('방사능', vu(s.activity))}${row('거리', vu(r.distance))}
+      ${row('기존 차폐', (r.layers || []).map(l => `${esc(M.materials[l.material].name)} ${esc(l.thickness)} ${esc(l.unit)}`).join(', ') || '없음')}
+      ${row('목표 선량률', vu(r.target) || '—')}${row('두께 구할 재질', r.solve_material ? esc(M.materials[r.solve_material].name) : '—')}${row('작업시간', vu(r.time) || '—')}
+      ${row('선량 양', esc(M.quant[r.quantity][0]))}</table></div>
+      ${p.issues.length ? `<ul class="warns">${p.issues.map(i => `<li>${esc(i)}</li>`).join('')}</ul>` : '<div class="hint ok">입력값 검사 통과</div>'}
+      <div class="bar"><button class="sm" id="toform">계산 탭에 채우기</button></div></div><div id="askres"></div>`;
+    $('toform').onclick = () => { fill(Object.assign({layers: []}, PARSED.request)); showTab('calc'); };
+  }
+  if (res){ const d = document.getElementById('askres') || $('askout');
+    d.innerHTML = `<div class="panel"><h3>설명 <span class="hint">(LLM — 계산 결과의 숫자만 인용)</span></h3><div class="exp" id="expl">…</div><div id="stray"></div></div><div id="askcalc"></div>`;
+    render(res, $('askcalc')); }
+}
+function finishAsk(d){
+  if (!d.result){ document.getElementById('askres') && (document.getElementById('askres').innerHTML = `<div class="disc">${esc(d.message)}</div>`); return; }
+  $('expl').textContent = d.explain || '';
+  $('stray').innerHTML = d.stray_numbers && d.stray_numbers.length ? `<div class="err" style="margin-top:8px">설명에 계산 결과에 없는 숫자가 있습니다: ${d.stray_numbers.map(esc).join(', ')} — 위 계산 결과 표를 기준으로 보세요.</div>`
+    : '<div class="hint ok" style="margin-top:6px">설명의 숫자가 모두 계산 결과와 일치</div>';
+}
+
+// ── 베타·중성자 ──
+$('bgo').onclick = async () => {
+  const j = await (await fetch('api/other', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({mode: 'beta', nuclide: $('bnuc').value})})).json();
+  if (j.error) return $('otherout').innerHTML = `<div class="err">${esc(j.error)}</div>`;
+  const mats = Object.keys(j.branches[0].thickness_mm);
+  $('otherout').innerHTML = `<div class="disc"><b>주의</b> — ${esc(j.disclaimer)}</div><div class="panel"><h3>${esc(j.key)} 베타 <span class="hint">반감기 ${fmtTime(j.half_life_s)}</span></h3>
+    <div class="tw"><table><tr><th class="l">방출</th><th>E<sub>max</sub></th><th>최대비정</th>${mats.map(m => `<th>${esc(m)}</th>`).join('')}</tr>
+    ${j.branches.map(b => `<tr><td class="l">${esc(b.origin)}</td><td>${sig(b.Emax_MeV, 4)} MeV</td><td>${sig(b.range_gcm2 * 1000, 3)} mg/cm²</td>${mats.map(m => `<td>${sig(b.thickness_mm[m], 3)} mm</td>`).join('')}</tr>`).join('')}</table></div>
+    <h3 style="margin-top:12px">제동복사(브렘스트랄룽) 전환 비율 ≈ 3.5×10⁻⁴ · Z · E<sub>max</sub></h3>
+    <div class="tw"><table><tr><th class="l">방출</th>${mats.map(m => `<th>${esc(m)}</th>`).join('')}</tr>${j.branches.map(b => `<tr><td class="l">${esc(b.origin)}</td>${mats.map(m => `<td>${sig(b.brems_frac[m] * 100, 2)}%</td>`).join('')}</tr>`).join('')}</table></div>
+    <ul class="warns" style="margin-top:10px"><li>최대비정: Katz–Penfold 경험식. 베타는 이 두께 이상의 <b>저Z 재질(아크릴·알루미늄)</b>로 먼저 막고, 필요하면 그 바깥에 납을 둡니다.</li>
+    <li>납을 선원 쪽에 직접 쓰면 제동복사 X선이 커집니다. 제동복사 선량률 자체는 계산하지 않습니다.</li>
+    <li>E<sub>max</sub> 는 DDEP Q 값(주 분기 바닥상태 전이) — Sr-90 은 Y-90 평형을 함께 보여 줍니다.</li></ul></div>`;
+};
+$('ngo').onclick = async () => {
+  const body = {mode: 'neutron', source: $('nsrc').value, amount: {value: +$('namt').value, unit: $('namtu').value}, distance: {value: +$('ndist').value, unit: $('ndistu').value}};
+  if ($('ntime').value) body.time = {value: +$('ntime').value, unit: 'h'};
+  const j = await (await fetch('api/other', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body)})).json();
+  if (j.error) return $('otherout').innerHTML = `<div class="err">${esc(j.error)}</div>`;
+  $('otherout').innerHTML = `<div class="disc"><b>주의</b> — ${esc(j.disclaimer)}</div>
+    <div class="heroes"><div class="hero main"><div class="k">${esc(j.source)} 중성자 H*(10) — 비차폐, ${fmtLen(j.r_cm)}</div><div class="v">${fmtRate(j.hstar, 'hstar')}</div><div class="s">방출률 ${sig(j.S_n_per_s)} n/s · 플루언스율 ${sig(j.phi)} cm⁻²s⁻¹</div></div>
+    ${j.dose != null ? `<div class="hero"><div class="k">작업 ${esc($('ntime').value)} 시간 누적</div><div class="v">${fmtDose(j.dose, 'hstar')}</div></div>` : ''}</div>
+    <div class="panel steps"><div class="st"><code>Ḣ*(10) = S / (4π r²) · h̄*(10)</code><br>h̄*(10) = ${j.h_pSv_cm2} pSv·cm² (ISO 8529 기준 스펙트럼 평균, ICRP 74 환산계수)</div>
+    <div class="st">${esc(j.note)}</div><div class="st no"><b>${esc(j.shielding)}</b> 감마선(Cf-252 핵분열 감마, Am-241 59.5 keV)은 별도로 계산하세요.</div></div>
+    ${j.limits ? `<div class="panel"><div class="tw"><table>${j.limits.map(l => `<tr><td class="l">${esc(l.name)} 연 ${l.annual_mSv} mSv</td><td>${sig(l.frac * 100, 3)}%</td></tr>`).join('')}</table></div></div>` : ''}`;
+};
+
+// ── 이력 ──
+async function loadHist(){
+  const h = await (await fetch('api/history')).json();
+  $('hist').innerHTML = h.length ? h.map(x => `<div class="it" data-id="${esc(x.id)}"><span class="tag">${esc({calc:'계산',ask:'질문',beta:'베타',neutron:'중성자'}[x.kind] || x.kind)}</span><span class="t">${esc(x.title)}</span><span class="d">${esc(x.ts.replace('T', ' '))}</span>
+    ${['calc','ask'].includes(x.kind) ? `<a class="noprint" href="api/report/${esc(x.id)}.md" download onclick="event.stopPropagation()"><button class="sm">MD</button></a>` : ''}<button class="sm del">삭제</button></div>`).join('') : '<div class="empty">이력이 없습니다</div>';
+  $('hist').querySelectorAll('.it').forEach(d => {
+    d.onclick = async ev => { if (ev.target.closest('a')) return;
+      if (ev.target.classList.contains('del')){ ev.stopPropagation(); if (!confirm('이 이력을 지울까요?')) return;
+        await fetch('api/history/delete', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({id: d.dataset.id})}); return loadHist(); }
+      openHist(d.dataset.id);
+    };
+  });
+}
+$('hrefresh').onclick = loadHist;
+
+// ── 데이터·검증 ──
+let VLOADED = false;
+async function loadData(){
+  $('dnuc').onchange = async () => {
+    const j = await (await fetch('api/nuclide?n=' + encodeURIComponent($('dnuc').value))).json();
+    $('dnucout').innerHTML = `<div class="hint">반감기 ${fmtTime(j.half_life_s)} · Γ(δ=20 keV) ${sig(j.gamma_const)} · Γ(δ=10 keV) ${sig(j.gamma_const10)} μGy·m²/(GBq·h) · ${esc(j.ddep_ref.join('; '))}${j.note ? ' · ' + esc(j.note) : ''}</div>
+      <div style="max-height:320px;overflow:auto"><div class="tw"><table><tr><th>E (keV)</th><th>붕괴당 방출률</th><th class="l">종류</th><th class="l">출처</th></tr>
+      ${j.photons.filter(p => p[1] >= 1e-3).map(p => `<tr><td>${sig(p[0] * 1000, 6)}</td><td>${sig(p[1] * 100, 4)}%</td><td class="l">${p[2] === 'X' ? 'X선' : 'γ'}</td><td class="l">${esc(p[3])}</td></tr>`).join('')}</table></div></div>
+      <div class="hint">0.1 % 이상만 표시 (계산에는 10 keV 이상·0.001 % 이상 모두 사용)</div>`;
+  };
+  $('dnuc').onchange();
+  if (VLOADED) return;
+  const v = await (await fetch('api/validation')).json(); VLOADED = true;
+  $('valid').innerHTML = `<div class="hint">${v.filter(r => r.ok).length}/${v.length} 허용오차 이내. 감쇠계수 행은 내장 표의 파싱·보간 검사(같은 NIST 원본)이고, Γ·TVL·축적인자 행이 독립 문헌과의 대조입니다.</div>
+    <div class="tw"><table><tr><th class="l">구분</th><th class="l">항목</th><th>계산값</th><th>문헌값</th><th class="l">단위</th><th>오차</th><th>허용</th><th class="l">출처</th><th class="l">메모</th></tr>
+    ${v.map(r => `<tr><td class="l">${esc(r.group)}</td><td class="l">${esc(r.name)}</td><td>${sig(r.calc)}</td><td>${sig(r.ref)}</td><td class="l">${esc(r.unit)}</td><td class="${r.ok ? 'ok' : 'no'}">${(r.err * 100 >= 0 ? '+' : '') + (r.err * 100).toFixed(1)}%</td><td>±${+(r.tol * 100).toFixed(1)}%</td><td class="l hint">${esc(r.source)}</td><td class="l hint">${esc(r.note)}</td></tr>`).join('')}</table></div>`;
+}
+init();
+</script>
+</body>
+</html>
