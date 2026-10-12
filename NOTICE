@@ -1,19 +1,28 @@
 shield-local
 ============
 
+이 저장소의 원저작물(코드·UI·프롬프트·문서·도구 설계)은 DongJu Kim(김동주, gggg8657)이 작성했다.
+제3자 구성요소(아래 수치 데이터 포함)는 각자의 이용 조건을 따르며 THIRD_PARTY_NOTICES.md 에 적었다.
+제3자 구성요소의 권리는 이 저장소의 라이선스(MIT)로 바뀌지 않는다 — data/ 의 수치 데이터는 MIT 가 아니다.
+연구·내부 시험용 프로토타입이며 배포·상업 서비스용이 아니다.
+
 Original work (MIT). 표준 라이브러리만 사용하며 제3자 코드·글꼴을 동봉하지 않습니다.
 data/ 의 수치 데이터는 아래 공개 원본에서 받거나(tools/build_data.py) 원본 표와 대조해 옮긴 것입니다.
 
 - data/xcom.json, data/air_muen.json — NIST XCOM (NIST Standard Reference Database 8) 및
   J. H. Hubbell & S. M. Seltzer, NISTIR 5632 "Tables of X-Ray Mass Attenuation Coefficients and Mass
-  Energy-Absorption Coefficients". 미국 정부 저작물(NIST). 출처 표기: NIST, https://physics.nist.gov/
+  Energy-Absorption Coefficients" (SRD 126). 출처 표기: NIST, https://physics.nist.gov/
+  NIST Standard Reference Data 는 Standard Reference Data Act 에 따라 미 상무부 장관 명의로 저작권이 주장되는
+  데이터다(https://www.nist.gov/srd/public-law). 재배포 조건 확인 필요 — GitHub 이슈 #3.
 - data/buildup_ans643.json — ANSI/ANS-6.4.3-1991 의 G-P 노출 축적인자 계수와 같은 데이터를 수록한
   D. K. Trubey, NUREG/CR-5740 (ORNL/RSIC-49/R1, 1991), DOI 10.2172/7032799 — 미국 정부 저작물(public domain).
   교차 확인에 BoykoNeov/Radiographer 의 전사본(data/vendor/ans643)을 참고했고, 스캔 원본과 다시 대조해
   콘크리트 8·10 MeV 계수 1건을 바로잡았습니다(값 자체는 물리 상수 성격의 사실 데이터).
+  Radiographer(Boyko Neov) 코드는 BNCL-1.0(비상업) 라이선스다. 전사 파일은 이 저장소에 넣지 않았다 — GitHub 이슈 #2.
 - data/nuclides.json — DDEP(Decay Data Evaluation Project) 권고 붕괴 데이터, LNHB/CEA 가 배포하는 LARA 파일
-  (http://www.lnhb.fr/nuclides/). 출처 표기: "DDEP / LNHB-CEA".
+  (http://www.lnhb.fr/nuclides/). 출처 표기: "DDEP / LNHB-CEA". 이용 조건 미확인 — GitHub 이슈 #3.
 - shield.py 의 ICRP74_HK 표 — ICRP Publication 74 (1996) Table A.21 의 H*(10)/Ka 환산계수(인용).
+  ICRP 저작물. 인용 조건 확인 필요 — GitHub 이슈 #1.
 - validation.py 의 문헌값 — Ninković & Adrović (2012, InTech "Gamma Radiation" 1장), Radiological Health
   Handbook(1970), NCRP Report 49(1976), NUREG/CR-5740 Table 3 에서 인용한 비교용 숫자.
 
@@ -21,7 +30,10 @@ Files authored for this package (MIT): app.py, shield.py, validation.py, ui.html
 tools/build_data.py, README.md
 
 LLM (not bundled): called via an OpenAI-compatible API; default deployment is Ollama (https://github.com/ollama/ollama, MIT)
-  serving Google Gemma (gemma4:31b, https://ai.google.dev/gemma — see Gemma's terms of use).
+  serving Google Gemma 4 (gemma4:31b, https://ai.google.dev/gemma, Apache-2.0).
 
-This package: Copyright (c) 2026 gggg8657 <dongjukim.dev@gmail.com>
+캐릭터: 포털 펫 "파동이"는 한국원자력연구원(KAERI) 공식 캐릭터(디자인 허쉬위쉬 HUSHWISH)이며 이 저장소의 저작물이 아니다.
+  권리는 KAERI·허쉬위쉬에 있다. 이전 커밋의 스크린샷에 찍혀 있었다(GitHub 이슈 #4).
+
+This package: Copyright (c) 2026 DongJu Kim (gggg8657) <gggg8657@gmail.com>
 화면 하단·메타데이터의 저작자 표기는 지우거나 바꾸지 마세요.

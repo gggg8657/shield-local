@@ -2,6 +2,8 @@
 
 "이 선원을 이 거리에서 이 차폐로 막으면 선량률이 얼마인가"를 실험 계획·안전 검토 때 빠르게 보는 로컬 웹 도구입니다. 포트 `8784`.
 
+> ⚠️ 연구·내부 시험용 프로토타입입니다(배포·상업 서비스용 아님). 제3자 구성요소의 라이선스는 THIRD_PARTY_NOTICES.md 를 확인하세요.
+
 > **간이 계산입니다.** 점선원·평판 차폐·무한매질 축적인자 근사를 쓰며 선원 캡슐·산란 구조물·공기 감쇠는 반영하지 않습니다.
 > 인허가·정식 차폐 평가는 MCNP 등 정밀 해석과 보건물리 담당자 확인이 필요합니다. (화면·보고서에 항상 표시)
 
@@ -197,16 +199,20 @@ RHH 값은 노출률 상수 Γ(R·cm²/(mCi·h))를 공기커마로 환산(1 R =
 
 ## 출처·감사 (Credits)
 
-- [NIST XCOM](https://physics.nist.gov/PhysRefData/Xcom/html/xcom1.html) (SRD 8) · Hubbell & Seltzer NISTIR 5632 — 감쇠계수 (미국 정부 저작물)
-- D. K. Trubey, NUREG/CR-5740 (= ANSI/ANS-6.4.3-1991 G-P 축적인자, DOI 10.2172/7032799, 미국 정부 저작물). 교차 확인에 [BoykoNeov/Radiographer](https://github.com/BoykoNeov/Radiographer) 전사본 참고
-- [DDEP / LNHB-CEA](http://www.lnhb.fr/nuclides/) — 붕괴 데이터
-- ICRP Publication 74 (1996) Table A.21 — H*(10)/Ka 환산계수(인용). 검증용 문헌값: Ninković & Adrović (2012), Radiological Health Handbook (1970), NCRP Report 49 (1976)
-- 자세한 버전·대조 내용은 위 '데이터 출처' 절과 `NOTICE` 참고
-- **LLM 실행** — OpenAI 호환 API 로 호출합니다(모델 가중치는 동봉하지 않음). 기본 배포는 [Ollama](https://github.com/ollama/ollama) (MIT) 위의 Google [Gemma](https://ai.google.dev/gemma) `gemma4:31b` — 모델 이용 조건은 Gemma 배포처 참고.
+- [NIST XCOM](https://physics.nist.gov/PhysRefData/Xcom/html/xcom1.html) (SRD 8) · Hubbell & Seltzer NISTIR 5632 (SRD 126) — 감쇠계수. NIST Standard Reference Data 는 NIST 가 저작권을 주장하는 데이터라 재배포 조건 확인 중([#3](https://github.com/gggg8657/shield-local/issues/3))
+- D. K. Trubey, NUREG/CR-5740 (= ANSI/ANS-6.4.3-1991 G-P 축적인자, DOI 10.2172/7032799, 미국 정부 보고서). 기계 판독 형태는 [BoykoNeov/Radiographer](https://github.com/BoykoNeov/Radiographer)(Boyko Neov, 코드 BNCL-1.0 비상업) 전사본에서 출발해 스캔 원본과 대조([#2](https://github.com/gggg8657/shield-local/issues/2))
+- [DDEP / LNHB-CEA](http://www.lnhb.fr/nuclides/) — 붕괴 데이터(이용 조건 미확인, [#3](https://github.com/gggg8657/shield-local/issues/3))
+- ICRP Publication 74 (1996) Table A.21 — H*(10)/Ka 환산계수(인용, 조건 확인 중 [#1](https://github.com/gggg8657/shield-local/issues/1)). 검증용 문헌값: Ninković & Adrović (2012), Radiological Health Handbook (1970), NCRP Report 49 (1976)
+- 자세한 버전·대조 내용은 위 '데이터 출처' 절과 `NOTICE` 참고. `data/` 의 수치 데이터는 이 저장소의 MIT 라이선스 대상이 아닙니다.
+- **LLM 실행** — OpenAI 호환 API 로 호출합니다(모델 가중치는 동봉하지 않음). 기본 배포는 [Ollama](https://github.com/ollama/ollama) (MIT) 위의 Google [Gemma 4](https://ai.google.dev/gemma) `gemma4:31b` (Apache-2.0).
 - 이 도구는 [agent-page-portal](https://github.com/gggg8657/agent-page-portal) 에 연결해 쓰도록 만들었습니다(단독 실행도 됨).
 
-저작권 표기·전체 목록은 `NOTICE` 를 보세요.
+전체 목록·라이선스·상업 이용 확인 항목은 [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md), 저작권 표기는 `NOTICE` 를 보세요.
 
 ## 라이선스
 
-MIT License — Copyright (c) 2026 DongJu Kim (gggg8657). `LICENSE` 를 보세요.
+MIT License — Copyright (c) 2026 DongJu Kim (gggg8657). `LICENSE` 를 보세요. 코드에 해당하며, 제3자 데이터·구성요소의 권리는 이 라이선스로 바뀌지 않습니다.
+
+## 만든 사람
+
+DongJu Kim (gggg8657) — 설계·구현
