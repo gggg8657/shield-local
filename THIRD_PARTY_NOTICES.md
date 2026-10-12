@@ -23,6 +23,5 @@
 - **ICRP-74 환산계수 표** ([#1](https://github.com/gggg8657/shield-local/issues/1)) — ICRP 의 표 인용 조건을 확인하지 못했습니다. 다른 공개 프로젝트는 ICRP 유래 계수를 비상업용으로 취급합니다. 회피: 상업 이용 전 ICRP 에 확인하거나, 표를 저장소 밖 파일로 빼고 없으면 공기커마만 표시(제안).
 - **축적인자 계수의 전사 경로** ([#2](https://github.com/gggg8657/shield-local/issues/2)) — 값은 공공 문서(NUREG/CR-5740)에서 왔지만 출발점이 비상업 라이선스 프로젝트(Radiographer)의 전사본입니다. 회피: 남은 3 재질(Cu·Al·air)을 스캔 원본과 직접 대조해 독립 전사로 만들기.
 - **NIST SRD 8·126 / DDEP 데이터 재배포** ([#3](https://github.com/gggg8657/shield-local/issues/3)) — NIST SRD 는 저작권을 주장하는 데이터이고 DDEP 조건은 미확인입니다. 회피: 데이터 파일을 저장소에서 빼고 설치 때 `tools/build_data.py` 로 받게 하기(제안, 미적용) 또는 NIST 에 확인.
-- **파동이(KAERI 캐릭터) — 옛 스크린샷 이력** ([#4](https://github.com/gggg8657/shield-local/issues/4)) — 커밋 715e836 이전의 `docs/img/result.png` 에 포털 펫 파동이가 찍혀 있었습니다. 지금 파일에는 없지만 공개 이력에 남아 있습니다.
 
 이 문서는 법률 자문이 아니며, 라이선스는 각 원문이 우선합니다.

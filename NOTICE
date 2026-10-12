@@ -33,7 +33,7 @@ LLM (not bundled): called via an OpenAI-compatible API; default deployment is Ol
   serving Google Gemma 4 (gemma4:31b, https://ai.google.dev/gemma, Apache-2.0).
 
 캐릭터: 포털 펫 "파동이"는 한국원자력연구원(KAERI) 공식 캐릭터(디자인 허쉬위쉬 HUSHWISH)이며 이 저장소의 저작물이 아니다.
-  권리는 KAERI·허쉬위쉬에 있다. 이전 커밋의 스크린샷에 찍혀 있었다(GitHub 이슈 #4).
+  권리는 KAERI·허쉬위쉬에 있다. README 스크린샷에 펫이 보일 수 있다(작성자 확인, 2026-10-12).
 
-This package: Copyright (c) 2026 DongJu Kim (gggg8657) <gggg8657@gmail.com>
+This package: Copyright (c) 2026 DongJu Kim (gggg8657) <dongjukim.dev@gmail.com>
 화면 하단·메타데이터의 저작자 표기는 지우거나 바꾸지 마세요.
