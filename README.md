@@ -43,6 +43,8 @@ python3 app.py --cli '{"source":{"nuclide":"Cs-137","activity":{"value":10,"unit
 표준 라이브러리만 씁니다(pip 설치 없음). 데이터는 `data/` 에 동봉되어 폐쇄망에서 그대로 동작합니다.
 환경변수: `PORT`(8784) · `WORKSPACE`(계산 이력, 포털이 지정) · `LLM_API`/`LLM_BASE_URL`/`LLM_MODEL`(자연어 질문용, 없어도 계산은 동작 — 코드 기본 `ollama` / `http://localhost:11434` / `qwen3:8b`, 포털로 띄우면 로컬 Ollama(`:11436`)의 `gemma4:31b`).
 
+포털 접속자 기준으로 계산 이력은 사용자별로 따로 저장합니다(`WORKSPACE/u/<사용자>/`, 포털이 넘기는 `X-Agent-User` 헤더). 서버 주인(owner)·단독 실행은 예전처럼 `WORKSPACE` 바로 아래를 쓰므로 예전 기록이 그대로 보입니다. 포털이 `BIND=127.0.0.1` 을 주면 포털을 거쳐서만 열립니다.
+
 ## 기능
 
 | 탭 | 내용 |
@@ -180,7 +182,7 @@ RHH 값은 노출률 상수 Γ(R·cm²/(mCi·h))를 공기커마로 환산(1 R =
 | 파일 | 내용 |
 |---|---|
 | `shield.py` | 계산 엔진 (단위·보간·G-P·점선원·역산·HVL/TVL·누적·베타·중성자) |
-| `app.py` | HTTP 서버(stdlib, 0.0.0.0:8784) · 이력 · MD 보고서 · LLM 보조(변환·설명·숫자 검사) |
+| `app.py` | HTTP 서버(stdlib, :8784 — `BIND` 로 바인드 주소) · 이력 · MD 보고서 · LLM 보조(변환·설명·숫자 검사) |
 | `validation.py` | 문헌 기준값 대조표 (selftest·화면·README 공용) |
 | `ui.html` | 화면 (그래프는 자체 SVG, 외부 CDN 없음) |
 | `selftest.py` | 가짜 LLM 으로 전체 검증 |

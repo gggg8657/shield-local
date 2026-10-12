@@ -266,19 +266,29 @@ SOURCES = [
 ]
 
 
-# ── 이력 ───────────────────────────────────────────────────────────────
-def hist_path(hid):
+# ── 이력 (사용자별: WS 또는 WS/u/<사용자>) ─────────────────────────────────
+def user_ws(h):
+    """포털이 넘긴 사용자별 작업 폴더. owner(서버 주인)·헤더 없음(단독 실행) = 예전 WORKSPACE 그대로"""
+    u = (h.headers.get("X-Agent-User") or "owner").strip()
+    if u == "owner":
+        return WS
+    d = os.path.join(WS, "u", re.sub(r"[^A-Za-z0-9_.-]", "_", u)[:64] or "_")
+    os.makedirs(d, exist_ok=True)
+    return d
+
+
+def hist_path(hid, ws=WS):
     if not re.fullmatch(r"\d{8}-\d{6}-[0-9a-f]{4}", hid or ""):
         raise ValueError("잘못된 이력 id")
-    return os.path.join(WS, "history", hid + ".json")
+    return os.path.join(ws, "history", hid + ".json")
 
 
-def hist_save(kind, req, res, title):
-    os.makedirs(os.path.join(WS, "history"), exist_ok=True)
+def hist_save(kind, req, res, title, ws=WS):
+    os.makedirs(os.path.join(ws, "history"), exist_ok=True)
     now = datetime.datetime.now()
     rec = {"id": f"{now:%Y%m%d-%H%M%S}-{secrets.token_hex(2)}", "ts": now.isoformat(timespec="seconds"), "kind": kind,
            "title": title, "request": req, "result": res}
-    p = hist_path(rec["id"])
+    p = hist_path(rec["id"], ws)
     with LOCK:
         with open(p + ".tmp", "w", encoding="utf-8") as f:
             json.dump(rec, f, ensure_ascii=False)
@@ -286,8 +296,8 @@ def hist_save(kind, req, res, title):
     return rec["id"]
 
 
-def hist_list(limit=300):
-    d = os.path.join(WS, "history")
+def hist_list(limit=300, ws=WS):
+    d = os.path.join(ws, "history")
     if not os.path.isdir(d):
         return []
     out = []
@@ -502,7 +512,7 @@ def numbers_of(text):
     return {re.sub(r"[^\d.]", "", m).strip(".") for m in re.findall(r"\d[\d,]*(?:\.\d+)?", text or "")} - {""}
 
 
-def ask(req, emit):
+def ask(req, emit, ws=WS):
     """자연어 질문: 변환(LLM) → 검증(코드) → 계산(결정론) → 설명(LLM) + 숫자 검사"""
     text = (req.get("question") or "").strip()
     if not text:
@@ -517,7 +527,7 @@ def ask(req, emit):
                 "message": "계산에 필요한 정보가 부족하거나 확인이 필요합니다. '계산 탭에 채우기'로 옮겨 값을 확인·보완한 뒤 계산하세요."}
     emit({"stage": "calc"})
     res = calc(creq)
-    hid = hist_save("ask", dict(creq, question=text), res, "Q: " + text[:60])
+    hid = hist_save("ask", dict(creq, question=text), res, "Q: " + text[:60], ws)
     emit({"result": res, "id": hid})
     emit({"stage": "explain"})
     summ = summary_for_llm(res, creq.get("ask"))
@@ -581,15 +591,15 @@ class H(BaseHTTPRequestHandler):
             if path == "/api/meta":
                 return self._send(meta())
             if path == "/api/history":
-                return self._send(hist_list())
+                return self._send(hist_list(ws=user_ws(self)))
             if path == "/api/validation":
                 return self._send(validation.run())
             m = re.fullmatch(r"/api/history/([\w-]+)", path)
             if m:
-                return self._send(json.loads(read(hist_path(m.group(1)))))
+                return self._send(json.loads(read(hist_path(m.group(1), user_ws(self)))))
             m = re.fullmatch(r"/api/report/([\w-]+)\.md", path)
             if m:
-                rec = json.loads(read(hist_path(m.group(1))))
+                rec = json.loads(read(hist_path(m.group(1), user_ws(self))))
                 if rec["kind"] not in ("calc", "ask"):
                     raise ValueError("보고서는 감마 계산만")
                 return self._send(report_md(rec["result"]).encode(), "text/markdown; charset=utf-8",
@@ -615,14 +625,14 @@ class H(BaseHTTPRequestHandler):
         try:
             if self.path == "/api/calc":
                 res = calc(req)
-                res["id"] = hist_save("calc", req, res, title_of(res))
+                res["id"] = hist_save("calc", req, res, title_of(res), user_ws(self))
                 return self._send(res)
             if self.path == "/api/other":
                 res = calc_other(req)
-                res["id"] = hist_save(res["mode"], req, res, (req.get("nuclide") or req.get("source") or "") + (" 베타" if res["mode"] == "beta" else " 중성자"))
+                res["id"] = hist_save(res["mode"], req, res, (req.get("nuclide") or req.get("source") or "") + (" 베타" if res["mode"] == "beta" else " 중성자"), user_ws(self))
                 return self._send(res)
             if self.path == "/api/history/delete":
-                p = hist_path(req.get("id"))
+                p = hist_path(req.get("id"), user_ws(self))
                 if os.path.exists(p):
                     os.remove(p)
                 return self._send({"ok": True})
@@ -642,7 +652,7 @@ class H(BaseHTTPRequestHandler):
             self.wfile.write(f"data: {json.dumps(ev, ensure_ascii=False)}\n\n".encode())
             self.wfile.flush()
         try:
-            emit({"done": ask(req, emit)})
+            emit({"done": ask(req, emit, user_ws(self))})
         except (BrokenPipeError, ConnectionResetError):
             pass
         except Exception as e:
@@ -658,4 +668,4 @@ if __name__ == "__main__":
         print(report_md(r))
         sys.exit(0)
     print(f"shield local → http://localhost:{PORT}  (llm={LLM_API} {LLM_BASE} {MODEL}, workspace={WS})  {_SIG}")
-    ThreadingHTTPServer(("0.0.0.0", PORT), H).serve_forever()
+    ThreadingHTTPServer((os.environ.get("BIND", ""), PORT), H).serve_forever()
