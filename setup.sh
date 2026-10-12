@@ -3,12 +3,13 @@
 #   bash setup.sh          # Python 확인 + LLM 서버 탐색(선택) + selftest + 웹 서버 + 브라우저
 #   bash setup.sh stop
 # 환경변수: LLM_BASE_URL / LLM_API / LLM_MODEL (자연어 질문용, 없어도 계산은 동작), PORT (8784), WORKSPACE (계산 이력)
-# 표준 라이브러리만 쓴다 — pip 설치 없음. 데이터(NIST·DDEP·ANS-6.4.3·ICRP 74)는 data/ 에 동봉(폐쇄망 그대로 동작).
+# 표준 라이브러리만 쓴다 — pip 설치 없음. NIST(XCOM·μen/ρ)·DDEP 데이터는 저장소에 넣지 않고 처음 설치할 때 원본에서 받아 만든다
+#   (tools/build_data.py, 인터넷 필요 — 폐쇄망이면 인터넷 되는 PC 에서 만든 data/{xcom,air_muen,nuclides}.json 을 복사). ANS-6.4.3·ICRP 74 표는 동봉.
 # selftest 는 스스로 WORKSPACE 를 임시 폴더로 바꿔 돌고 지운다 (실데이터 폴더에 흔적 없음).
 set -euo pipefail
 PORT="${PORT:-8784}"
 if [ -t 1 ]; then B=$'\033[1m'; D=$'\033[2m'; C=$'\033[36m'; G=$'\033[32m'; R=$'\033[31m'; N=$'\033[0m'; else B= D= C= G= R= N=; fi
-STEP=0; step() { STEP=$((STEP+1)); printf '  %s[%d/6]%s %s%-14s%s ' "$D" "$STEP" "$N" "$B" "$1" "$N"; }
+STEP=0; step() { STEP=$((STEP+1)); printf '  %s[%d/7]%s %s%-14s%s ' "$D" "$STEP" "$N" "$B" "$1" "$N"; }
 ok() { printf '%s✔%s %s\n' "$G" "$N" "${1:-}"; }; skip() { printf '%s–%s %s\n' "$D" "$N" "${1:-}"; }
 die() { printf '%s✘ %s%s\n\n' "$R" "$*" "$N" >&2; exit 1; }
 has() { command -v "$1" >/dev/null 2>&1; }; probe() { curl -fsS -m 2 "$1" >/dev/null 2>&1; }
@@ -16,13 +17,19 @@ wait_for() { for _ in $(seq 1 "${2:-30}"); do probe "$1" && return 0; sleep 1; d
 printf '\n%s  shield local%s  방사선 차폐·선량 간이 계산기 — 점선원 감마 · G-P 축적인자 · 역산 · 누적선량\n\n' "$B" "$N"
 
 step "OS 감지"; case "$(uname -s)" in Darwin*) OS=mac ;; Linux*) OS=linux ;; MINGW*|MSYS*|CYGWIN*) OS=windows ;; *) die "지원하지 않는 OS: $(uname -s)" ;; esac; ok "$OS ($(uname -m))"
-step "패키지 확보"; cd "$(dirname "${BASH_SOURCE[0]}")"; [ -f app.py ] && [ -f data/xcom.json ] || die "app.py 또는 data/ 가 없습니다"; ok "$(pwd)"
+step "패키지 확보"; cd "$(dirname "${BASH_SOURCE[0]}")"; [ -f app.py ] || die "app.py 가 없습니다"; ok "$(pwd)"
 if [ "${1:-}" = "stop" ]; then [ -f .server.pid ] && kill "$(cat .server.pid)" 2>/dev/null && rm -f .server.pid && ok "웹 서버 종료" || skip "실행 중인 서버 없음"; exit 0; fi
 
 step "Python"
 PY=""; for c in python3 python py; do has "$c" && "$c" -c 'import sys; sys.exit(0 if sys.version_info >= (3, 9) else 1)' 2>/dev/null && { PY=$c; break; }; done
 [ -n "$PY" ] || die "Python 3.9+ 가 없습니다 (sudo apt install python3 / brew install python)"
 ok "$($PY --version 2>&1) (표준 라이브러리만)"
+
+step "데이터"
+if [ -f data/xcom.json ] && [ -f data/air_muen.json ] && [ -f data/nuclides.json ]; then ok "data/ (NIST XCOM·μen/ρ, DDEP) 있음"
+else printf '\n      NIST SRD 8·126 과 DDEP 원본에서 받아 만듭니다 — 각 원본의 이용 조건을 따릅니다(THIRD_PARTY_NOTICES.md)\n      '
+  "$PY" tools/build_data.py >/dev/null 2>&1 || die "데이터 받기 실패 — 인터넷이 필요합니다. 인터넷 되는 PC 에서 python3 tools/build_data.py 후 data/*.json 을 복사하세요"
+  ok "data/ 생성 완료"; fi
 
 step "LLM (선택)"
 export LLM_API="${LLM_API:-}" LLM_BASE_URL="${LLM_BASE_URL:-}" LLM_MODEL="${LLM_MODEL:-}"

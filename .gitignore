@@ -23,3 +23,7 @@ checkpoints/
 *.pt
 *.safetensors
 .cache/
+# NIST·DDEP 데이터 — 설치할 때 tools/build_data.py 가 원본에서 받아 만듦(저장소에 넣지 않음)
+data/xcom.json
+data/air_muen.json
+data/nuclides.json

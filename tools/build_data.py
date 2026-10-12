@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""data/*.json 을 공개 원본에서 다시 만든다 (인터넷 필요 — 폐쇄망 서버에서는 실행할 필요 없음, 결과 JSON 을 동봉).
+"""data/*.json 을 공개 원본에서 다시 만든다 (인터넷 필요 — setup.sh 가 처음 설치할 때 부른다. NIST SRD·DDEP 데이터라 결과 JSON 은 저장소에 넣지 않음).
 
   python3 tools/build_data.py            # data/xcom.json, data/air_muen.json, data/nuclides.json 재생성
 
