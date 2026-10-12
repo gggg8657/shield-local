@@ -28,6 +28,7 @@ WS = os.environ.get("WORKSPACE") or os.path.join(ROOT, "_workspace")  # 포털�
 LLM_API = os.environ.get("LLM_API", "ollama")
 LLM_BASE = os.environ.get("LLM_BASE_URL", "http://localhost:8000/v1" if LLM_API == "openai" else "http://localhost:11434").rstrip("/")
 MODEL = os.environ.get("LLM_MODEL", "qwen3:8b")
+NUM_CTX = int(os.environ.get("NUM_CTX", "8192"))  # 포털이 모든 도구에 같은 값을 넘김(값이 다르면 Ollama 가 모델을 다시 올림)
 LLM_KEY = os.environ.get("LLM_API_KEY", "")
 PORT = int(os.environ.get("PORT", "8784"))
 LOCK = threading.Lock()
@@ -323,7 +324,7 @@ def llm(system, user, temperature=0.0, on_token=lambda t: None, json_mode=False)
                             buf.append(tok)
                             on_token(tok)
             return "".join(buf)
-        body = {"model": MODEL, "stream": True, "think": False, "messages": msgs, "options": {"temperature": temperature, "num_ctx": 8192}}
+        body = {"model": MODEL, "stream": True, "think": False, "messages": msgs, "options": {"temperature": temperature, "num_ctx": NUM_CTX}}
         if json_mode:
             body["format"] = "json"
         for attempt in (0, 1):
