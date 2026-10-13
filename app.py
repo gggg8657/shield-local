@@ -201,11 +201,13 @@ def fmt_time(s):
 def calc_other(req):
     if req.get("mode") == "beta":
         return {"mode": "beta", **S.beta_info(req.get("nuclide")), "disclaimer": DISCLAIMER}
-    d = req.get("distance") or {}
+    d = req.get("distance") if isinstance(req.get("distance"), dict) else {}
     r = S.to_cm(_num(d) or 100, d.get("unit", "cm"))
-    a = req.get("amount") or {}
+    a = req.get("amount")
+    if not isinstance(a, dict) or _num(a) is None or _num(a) <= 0:
+        raise ValueError("중성자 선원 양(amount: {value, unit})을 양수로 넣어 주세요")
     out = S.neutron_rate(req.get("source"), _num(a), a.get("unit"), r)
-    tm = req.get("time") or {}
+    tm = req.get("time") if isinstance(req.get("time"), dict) else {}
     if _num(tm):
         out["dose"] = out["hstar"] * S.hours(_num(tm), tm.get("unit", "h"))
         out["limits"] = [dict(l, frac=out["dose"] * 1e3 / l["annual_mSv"]) for l in S.LIMITS]
@@ -621,6 +623,8 @@ class H(BaseHTTPRequestHandler):
         try:
             req = json.loads(self.rfile.read(int(self.headers.get("Content-Length") or 0)) or b"{}")
         except ValueError:
+            return self._send({"error": "잘못된 요청"}, code=400)
+        if not isinstance(req, dict):
             return self._send({"error": "잘못된 요청"}, code=400)
         try:
             if self.path == "/api/calc":
