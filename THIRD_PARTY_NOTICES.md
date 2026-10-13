@@ -1,6 +1,6 @@
 # THIRD_PARTY_NOTICES — shield-local
 
-이 저장소의 코드(`app.py`·`shield.py`·`validation.py`·`ui.html`·`selftest.py`·`setup.sh`·`tools/build_data.py`)는 DongJu Kim(gggg8657)이 작성했으며 MIT 입니다. Python 표준 라이브러리만 쓰며 제3자 코드·글꼴·아이콘은 동봉하지 않습니다. 아래는 `data/` 와 코드 안에 들어 있는 **제3자 수치 데이터**와 외부 서비스입니다.
+이 저장소의 코드(`app.py`·`shield.py`·`validation.py`·`ui.html`·`selftest.py`·`setup.sh`·`tools/build_data.py`)는 DongJu Kim(gggg8657)이 작성했으며 PolyForm Noncommercial 1.0.0 입니다. Python 표준 라이브러리만 쓰며 제3자 코드·글꼴·아이콘은 동봉하지 않습니다. 아래는 `data/` 와 코드 안에 들어 있는 **제3자 수치 데이터**와 외부 서비스입니다.
 
 조사 기준: 2026-10-12. 실제 파일(`data/*.json` 의 `_source` 필드, `tools/build_data.py`, `shield.py`·`validation.py` 상수)을 보고 각 원출처의 이용 조건을 확인했습니다.
 

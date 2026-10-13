@@ -3,10 +3,10 @@ shield-local
 
 이 저장소의 원저작물(코드·UI·프롬프트·문서·도구 설계)은 DongJu Kim(김동주, gggg8657)이 작성했다.
 제3자 구성요소(아래 수치 데이터 포함)는 각자의 이용 조건을 따르며 THIRD_PARTY_NOTICES.md 에 적었다.
-제3자 구성요소의 권리는 이 저장소의 라이선스(MIT)로 바뀌지 않는다 — data/ 의 수치 데이터는 MIT 가 아니다.
+제3자 구성요소의 권리는 이 저장소의 라이선스(PolyForm Noncommercial 1.0.0)로 바뀌지 않는다 — data/ 의 수치 데이터는 이 라이선스의 대상이 아니다.
 연구·내부 시험용 프로토타입이며 배포·상업 서비스용이 아니다.
 
-Original work (MIT). 표준 라이브러리만 사용하며 제3자 코드·글꼴을 동봉하지 않습니다.
+Original work (PolyForm Noncommercial 1.0.0). 표준 라이브러리만 사용하며 제3자 코드·글꼴을 동봉하지 않습니다.
 data/ 의 수치 데이터는 아래 공개 원본에서 받거나(tools/build_data.py — NIST·DDEP 데이터는 저장소에 넣지 않고 설치할 때 받음) 원본 표와 대조해 옮긴 것입니다.
 
 - data/xcom.json, data/air_muen.json — NIST XCOM (NIST Standard Reference Database 8) 및
@@ -26,7 +26,7 @@ data/ 의 수치 데이터는 아래 공개 원본에서 받거나(tools/build_d
 - validation.py 의 문헌값 — Ninković & Adrović (2012, InTech "Gamma Radiation" 1장), Radiological Health
   Handbook(1970), NCRP Report 49(1976), NUREG/CR-5740 Table 3 에서 인용한 비교용 숫자.
 
-Files authored for this package (MIT): app.py, shield.py, validation.py, ui.html, selftest.py, setup.sh,
+Files authored for this package (PolyForm Noncommercial 1.0.0): app.py, shield.py, validation.py, ui.html, selftest.py, setup.sh,
 tools/build_data.py, README.md
 
 LLM (not bundled): called via an OpenAI-compatible API; default deployment is Ollama (https://github.com/ollama/ollama, MIT)
@@ -37,3 +37,15 @@ LLM (not bundled): called via an OpenAI-compatible API; default deployment is Ol
 
 This package: Copyright (c) 2026 DongJu Kim (gggg8657) <dongjukim.dev@gmail.com>
 화면 하단·메타데이터의 저작자 표기는 지우거나 바꾸지 마세요.
+
+License / 라이선스 (2026-10-13 변경: MIT → PolyForm Noncommercial 1.0.0)
+  이 저장소의 원저작물은 PolyForm Noncommercial License 1.0.0 을 따른다 (LICENSE, SPDX: PolyForm-Noncommercial-1.0.0,
+  https://polyformproject.org/licenses/noncommercial/1.0.0/).
+  비상업 목적(개인 연구·학습·시험, 교육기관·공공 연구기관·정부기관·비영리 단체 등)의 사용·수정·재배포는 허용하며,
+  상업적 이용은 저작자의 별도 허락이 필요하다.
+  이전 버전: 커밋 561bae0 까지(2026-10-13 이전)의 버전을 MIT 로 받아 간 사본에는 MIT 가 계속 적용된다. 변경은 이후 버전에만 적용된다.
+  제3자 구성요소(동봉 파일·설치 의존성·모델·데이터)는 각자의 원래 라이선스를 그대로 따르며 이 변경의 영향을 받지 않는다
+  (THIRD_PARTY_NOTICES.md).
+  연구·내부 시험용 프로토타입이며 배포·상업 서비스용이 아니다.
+
+Required Notice: Copyright 2026 DongJu Kim (gggg8657)

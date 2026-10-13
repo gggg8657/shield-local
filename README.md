@@ -203,7 +203,7 @@ RHH 값은 노출률 상수 Γ(R·cm²/(mCi·h))를 공기커마로 환산(1 R =
 - D. K. Trubey, NUREG/CR-5740 (= ANSI/ANS-6.4.3-1991 G-P 축적인자, DOI 10.2172/7032799, 미국 정부 보고서). 기계 판독 형태는 [BoykoNeov/Radiographer](https://github.com/BoykoNeov/Radiographer)(Boyko Neov, 코드 BNCL-1.0 비상업) 전사본에서 출발해 스캔 원본과 대조([#2](https://github.com/gggg8657/shield-local/issues/2))
 - [DDEP / LNHB-CEA](http://www.lnhb.fr/nuclides/) — 붕괴 데이터(이용 조건 미확인, [#3](https://github.com/gggg8657/shield-local/issues/3))
 - ICRP Publication 74 (1996) Table A.21 — H*(10)/Ka 환산계수(인용, 조건 확인 중 [#1](https://github.com/gggg8657/shield-local/issues/1)). 검증용 문헌값: Ninković & Adrović (2012), Radiological Health Handbook (1970), NCRP Report 49 (1976)
-- 자세한 버전·대조 내용은 위 '데이터 출처' 절과 `NOTICE` 참고. `data/` 의 수치 데이터는 이 저장소의 MIT 라이선스 대상이 아닙니다.
+- 자세한 버전·대조 내용은 위 '데이터 출처' 절과 `NOTICE` 참고. `data/` 의 수치 데이터는 이 저장소의 라이선스(PolyForm Noncommercial 1.0.0) 대상이 아닙니다.
 - **LLM 실행** — OpenAI 호환 API 로 호출합니다(모델 가중치는 동봉하지 않음). 기본 배포는 [Ollama](https://github.com/ollama/ollama) (MIT) 위의 Google [Gemma 4](https://ai.google.dev/gemma) `gemma4:31b` (Apache-2.0).
 - 이 도구는 [agent-page-portal](https://github.com/gggg8657/agent-page-portal) 에 연결해 쓰도록 만들었습니다(단독 실행도 됨).
 
@@ -211,7 +211,12 @@ RHH 값은 노출률 상수 Γ(R·cm²/(mCi·h))를 공기커마로 환산(1 R =
 
 ## 라이선스
 
-MIT License — Copyright (c) 2026 DongJu Kim (gggg8657). `LICENSE` 를 보세요. 코드에 해당하며, 제3자 데이터·구성요소의 권리는 이 라이선스로 바뀌지 않습니다.
+[PolyForm Noncommercial License 1.0.0](LICENSE) — Copyright 2026 DongJu Kim (gggg8657). 코드에 해당하며, 제3자 데이터의 권리는 바뀌지 않습니다.
+
+- 비상업 목적(개인 연구·학습·시험, 교육기관·공공 연구기관·정부기관·비영리 단체 등)이면 쓰고 고치고 다시 배포할 수 있습니다. 다시 배포할 때는 `LICENSE` 와 `Required Notice:` 줄을 함께 주세요.
+- 상업적 이용은 저작자의 별도 허락이 필요합니다.
+- 2026-10-13 이전 버전(커밋 `561bae0` 까지)을 MIT 로 받아 간 사본에는 MIT 가 계속 적용됩니다. 이 변경은 이후 버전에만 적용됩니다.
+- 제3자 구성요소는 각자의 원래 라이선스를 따르며 이 라이선스로 바뀌지 않습니다(`THIRD_PARTY_NOTICES.md`, `NOTICE`).
 
 ## 만든 사람
 
