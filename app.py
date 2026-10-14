@@ -674,4 +674,4 @@ if __name__ == "__main__":
         print(report_md(r))
         sys.exit(0)
     print(f"shield local → http://localhost:{PORT}  (llm={LLM_API} {LLM_BASE} {MODEL}, workspace={WS})  {_SIG}")
-    ThreadingHTTPServer((os.environ.get("BIND", ""), PORT), H).serve_forever()
+    ThreadingHTTPServer((os.environ.get("BIND", "127.0.0.1"), PORT), __import__("portal_auth").install(H, "shield-local")).serve_forever()
