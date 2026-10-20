@@ -21,6 +21,17 @@ import urllib.request
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import portal_auth  # 포털 서명 확인 관문·오류 문장 정리(원본 agent-page-portal/sdk/portal_auth.py)
 
+try:
+    from zoneinfo import ZoneInfo
+    KST = ZoneInfo("Asia/Seoul")
+except Exception:  # tzdata 없는 환경 — 한국은 일광절약시간 없음
+    KST = datetime.timezone(datetime.timedelta(hours=9), "KST")
+
+
+def now_kst():
+    """보고서에 찍는 작성 시각은 한국 시간 — 서버는 UTC"""
+    return datetime.datetime.now(KST)
+
 import shield as S
 import validation
 
@@ -220,7 +231,7 @@ def calc_other(req):
 def report_md(res, title=""):
     q = res["quantity"]
     L = [f"# 방사선 차폐 간이 계산 보고서{(' — ' + title) if title else ''}", "",
-         f"- 작성: {datetime.datetime.now():%Y-%m-%d %H:%M} · shield local v{res.get('version', VERSION)}",
+         f"- 작성: {now_kst():%Y-%m-%d %H:%M} KST · shield local v{res.get('version', VERSION)}",
          f"- **주의**: {res['disclaimer']}", "", "## 입력", "",
          f"| 항목 | 값 |", "|---|---|",
          f"| 선원 | {res['nuclide']}{(' (' + res['note'] + ')') if res.get('note') else ''} |",
