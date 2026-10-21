@@ -177,6 +177,60 @@ try:
     assert any("질문에 없음" in i for i in done["parsed"]["issues"])
     post("/api/history/delete", {"id": j["id"]})
     assert j["id"] not in [x["id"] for x in json.load(urllib.request.urlopen(base + "/api/history"))]
+    # 브라우저가 떠나도(첫 진행 이벤트 뒤 쓰기가 BrokenPipeError) 작업은 끝까지 — 결과는 이력에 남고, 서버 오류·트레이스백 없음
+    import io, threading, urllib.request
+    from http.server import ThreadingHTTPServer
+
+
+    class Cut:
+        def __init__(s, f, n):
+            s.f, s.n = f, n
+
+        def write(s, b):
+            s.n -= 1
+            if s.n < 0:
+                raise BrokenPipeError(32, "Broken pipe")
+            return s.f.write(b)
+
+        def flush(s):
+            pass
+
+        def __getattr__(s, k):
+            return getattr(s.f, k)
+
+
+    class CutH(app.H):
+        def setup(s):
+            super().setup()
+            s.wfile = Cut(s.wfile, 2)  # 응답 머리 + 첫 이벤트까지만 닿음
+
+
+    ERRS = []
+
+
+    class Srv(ThreadingHTTPServer):
+        def handle_error(s, req, addr):
+            ERRS.append(sys.exc_info()[1])
+
+
+    def cut_post(path, body, user="dc-test"):
+        cut = Srv(("127.0.0.1", 0), CutH)
+        threading.Thread(target=cut.serve_forever, daemon=True).start()
+        err0, sys.stderr = sys.stderr, io.StringIO()
+        try:
+            r = urllib.request.Request(f"http://127.0.0.1:{cut.server_address[1]}{path}", json.dumps(body).encode(),
+                                       {"Content-Type": "application/json", "X-Agent-User": user})
+            got, log = urllib.request.urlopen(r, timeout=60).read().decode(), sys.stderr.getvalue()
+        finally:
+            sys.stderr = err0
+            cut.shutdown()
+            cut.server_close()
+        assert got.count("data: ") == 1 and not ERRS and "Traceback" not in log and log.count("연결 끊김") == 1, (got, ERRS, log)
+        return os.path.join(app.WS, "u", user)
+    d = cut_post("/api/ask", {"question": "Cs-137 10 mCi 를 30 cm 에서 2.5 μSv/h 이하로 하려면 납 몇 mm?"})
+    h = app.hist_list(ws=d)
+    assert len(h) == 1 and h[0]["kind"] == "ask", h
+
     srv.shutdown()
     print(f"selftest OK — 단위·보간·축적인자·선량률·역산·누적·문헌대조 {len(rows)}건·베타·중성자·LLM 검증·HTTP")
 finally:
